@@ -596,6 +596,7 @@ function liveCustomize() {
     const blurValue = document.getElementById("bgOpacityInput").value; // Utilisé pour le flou
     const logoColor = document.getElementById("logoColorInput").value;
     const selectedFont = document.getElementById("fontSelect").value; // Récupérer la police sélectionnée
+    const logoText = document.getElementById("logoTextInput") ? document.getElementById("logoTextInput").value : "";
 
     // Appliquer l'image de fond si elle existe, sinon appliquer la couleur de fond
     if (backgroundImage) {
@@ -610,6 +611,9 @@ function liveCustomize() {
     const logo = document.querySelector(".logo");
     logo.style.color = logoColor;
     logo.style.fontFamily = selectedFont; // Appliquer la police au logo
+    if (typeof logoText === 'string' && logoText.length > 0) {
+        logo.textContent = logoText;
+    }
 
     // Appliquer les styles aux boutons
     const buttons = document.querySelectorAll("button, .top-buttons a, .donate-button, .customize-button");
@@ -648,6 +652,7 @@ function saveCustomization() {
     const logoColor = document.getElementById("logoColorInput").value;
     const blurValue = document.getElementById("bgOpacityInput").value;
     const selectedFont = document.getElementById("fontSelect").value;
+    const logoText = document.getElementById("logoTextInput") ? document.getElementById("logoTextInput").value : "";
 
     localStorage.setItem('bgValue', bgValue);
     localStorage.setItem('btnColor', btnColor);
@@ -655,6 +660,9 @@ function saveCustomization() {
     localStorage.setItem('logoColor', logoColor);
     localStorage.setItem('blurValue', blurValue);
     localStorage.setItem('selectedFont', selectedFont);
+    if (typeof logoText === 'string') {
+        localStorage.setItem('logoText', logoText);
+    }
 }
 
 function loadCustomization() {
@@ -665,6 +673,7 @@ function loadCustomization() {
     const blurValue = localStorage.getItem('blurValue') || 1;
     const selectedFont = localStorage.getItem('selectedFont') || 'Segoe UI';
     const savedBackgroundImage = localStorage.getItem('backgroundImage') || ''; // Charger l'URL de l'image de fond
+    const storedLogoText = localStorage.getItem('logoText');
 
     document.getElementById("bgInput").value = bgValue;
     document.getElementById("btnColorInput").value = btnColor;
@@ -672,6 +681,10 @@ function loadCustomization() {
     document.getElementById("logoColorInput").value = logoColor;
     document.getElementById("bgOpacityInput").value = blurValue;
     document.getElementById("fontSelect").value = selectedFont;
+    if (document.getElementById("logoTextInput")) {
+        const currentLogoText = document.querySelector('.logo') ? document.querySelector('.logo').textContent : '';
+        document.getElementById("logoTextInput").value = (storedLogoText !== null) ? storedLogoText : currentLogoText;
+    }
 
     // Appliquer l'image de fond si elle existe
     if (savedBackgroundImage) {
@@ -721,10 +734,18 @@ function resetCustomization() {
     document.getElementById("logoColorInput").value = "#000000"; // Réinitialiser la couleur du logo
     document.getElementById("bgOpacityInput").value = 1; // Réinitialiser l'effet de flou
     document.getElementById("fontSelect").value = "Segoe UI"; // Réinitialiser la police d'écriture
+    if (document.getElementById("logoTextInput")) {
+        document.getElementById("logoTextInput").value = "_SR_Off_ Browser"; // Réinitialiser le texte du logo
+    }
 
     backgroundImage = ''; // Réinitialiser l'image de fond
     localStorage.removeItem('backgroundImage'); // Supprimer l'URL de l'image de fond du localStorage
+    localStorage.removeItem('logoText'); // Supprimer le texte personnalisé du logo
     document.body.style.background = "linear-gradient(to bottom, #f1f3f4, #ffffff)"; // Appliquer le fond par défaut
+    const logoEl = document.querySelector('.logo');
+    if (logoEl) {
+        logoEl.textContent = "_SR_Off_ Browser"; // Remettre le texte par défaut
+    }
 
     liveCustomize(); // Appliquer les valeurs réinitialisées
 }
@@ -895,6 +916,9 @@ function removeBackgroundImage() {
     <label>🖼️ Télécharger un fond d'écran :
         <input type="file" id="bgImageInput" accept="image/*" onchange="setBackgroundImage(event)" />
         <button type="button" onclick="removeBackgroundImage()" style="background: none; border: none; cursor: pointer; margin-left: 5px; font-size: 0.7rem; margin-top: -10px;">🗑️</button>
+    </label>
+    <label>📝 Texte du logo :
+        <input type="text" id="logoTextInput" placeholder="_SR_Off_ Browser" oninput="liveCustomize()" />
     </label>
     <label>🔵 Couleur des boutons :
         <input type="color" id="btnColorInput" value="#1a73e8" oninput="liveCustomize()" />
